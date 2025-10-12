@@ -3,9 +3,10 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Textarea } from './ui/textarea';
 import { Label } from './ui/label';
-import { toast } from 'sonner@2.0.3';
-import { projectId, publicAnonKey } from '../utils/supabase/info';
+import { toast } from 'sonner';
 import { Check, X, Loader2 } from 'lucide-react';
+import emailjs from '@emailjs/browser';
+import { EMAILJS_CONFIG } from '../config/emailjs';
 
 export function RSVPForm() {
   const [name, setName] = useState('');
@@ -30,27 +31,31 @@ export function RSVPForm() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        `https://${projectId}.supabase.co/functions/v1/make-server-4f8c49ac/rsvp`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${publicAnonKey}`,
-          },
-          body: JSON.stringify({
-            name: name.trim(),
-            attending,
-            message: message.trim(),
-          }),
-        }
+      // Prepare email template parameters
+      const templateParams = {
+        to_name: 'Maria Chezka',
+        from_name: name.trim(),
+        guest_name: name.trim(),
+        attending: attending ? '✅ Yes, I will be there!' : '❌ Cannot make it',
+        message: message.trim() || 'No message provided',
+        date: new Date().toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        }),
+        time: new Date().toLocaleTimeString('en-US'),
+      };
+
+      // Send email automatically using EmailJS
+      const result = await emailjs.send(
+        EMAILJS_CONFIG.SERVICE_ID,
+        EMAILJS_CONFIG.TEMPLATE_ID,
+        templateParams,
+        EMAILJS_CONFIG.PUBLIC_KEY
       );
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to submit RSVP');
-      }
+      console.log('✅ Email sent successfully:', result.text);
 
       setIsSubmitted(true);
       toast.success(
@@ -63,9 +68,10 @@ export function RSVPForm() {
       setName('');
       setAttending(null);
       setMessage('');
+
     } catch (error) {
-      console.error('RSVP submission error:', error);
-      toast.error(error instanceof Error ? error.message : 'Failed to submit RSVP. Please try again.');
+      console.error('❌ Email sending failed:', error);
+      toast.error('Failed to send RSVP. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -163,7 +169,7 @@ export function RSVPForm() {
           {isSubmitting ? (
             <>
               <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-              Submitting...
+              Sending RSVP...
             </>
           ) : (
             'Submit RSVP'
@@ -175,6 +181,9 @@ export function RSVPForm() {
         <div className="mt-6 p-4 bg-green-600/20 border-2 border-green-400 rounded-xl text-center">
           <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
           <p className="text-white">Your RSVP has been received!</p>
+          <p className="text-green-200 text-sm mt-2">
+            An email has been automatically sent to Maria Chezka.
+          </p>
         </div>
       )}
     </div>
