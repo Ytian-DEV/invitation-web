@@ -33,14 +33,16 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="relative mb-12"
+          className="relative mb-12 cursor-pointer"
+          onClick={onOpen}
         >
           {/* Envelope */}
-          <div className="relative w-64 h-40 md:w-80 md:h-48 mx-auto">
+          <div className="relative w-64 h-40 md:w-80 md:h-48 mx-auto cursor-pointer envelope-container">
             {/* Envelope body */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 rounded-lg shadow-2xl"
+              className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 rounded-lg shadow-2xl cursor-pointer"
               whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
               <div className="absolute inset-0 border-4 border-red-900 rounded-lg"></div>
@@ -48,7 +50,7 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
 
             {/* Envelope flap */}
             <motion.div
-              className="absolute top-0 left-0 right-0 h-24 md:h-28 origin-top"
+              className="absolute top-0 left-0 right-0 h-24 md:h-28 origin-top cursor-pointer"
               style={{
                 background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
                 clipPath: 'polygon(0 0, 50% 100%, 100% 0)',
@@ -61,8 +63,8 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
 
             {/* Seal */}
             <motion.div
-              className="absolute top-16 md:top-20 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg z-10"
-              whileHover={{ rotate: 360 }}
+              className="absolute top-16 md:top-20 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg z-10 cursor-pointer"
+              whileHover={{ rotate: 360, scale: 1.1 }}
               transition={{ duration: 0.6 }}
             >
               <Mail className="w-8 h-8 text-red-600" />
@@ -73,6 +75,16 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
               <div className="h-0.5 bg-red-300 opacity-40 w-3/4"></div>
               <div className="h-0.5 bg-red-300 opacity-40 w-1/2"></div>
             </div>
+
+            {/* Click instruction text */}
+            <motion.div
+              className="absolute -bottom-12 left-0 right-0 text-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.2 }}
+            >
+
+            </motion.div>
           </div>
         </motion.div>
 
