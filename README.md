@@ -82,4 +82,3 @@ For new UI elements, use or extend components in [`src/components/ui/`](src/comp
 ## 📝 License
 
 See [LICENSE](LICENSE) for license details. Some UI and images are used under MIT and Unsplash licenses (see [Attributions](src/Attributions.md)).
-  
