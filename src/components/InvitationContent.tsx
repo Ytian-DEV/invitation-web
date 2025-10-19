@@ -630,10 +630,10 @@ export function InvitationContent() {
         <div className="max-w-4xl mx-auto px-4">
           <Heart className="w-8 h-8 text-red-500 mx-auto mb-4" />
           <p className="text-red-200 mb-2">
-            We can't wait to celebrate with you!
+            © 2025 Lily Tech Solutions. All rights reserved.
           </p>
-          <p className="text-sm text-red-300">
-            Maria Chezka's 25th Birthday Celebration
+          <p className="text-gray-500 text-sm">
+            Designed with ❤️ by Lily Tech Solutions
           </p>
         </div>
       </footer>
