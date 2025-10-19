@@ -1,11 +1,31 @@
-import { useState } from 'react';
-import { EnvelopeLanding } from './components/EnvelopeLanding';
-import { InvitationContent } from './components/InvitationContent';
-import { Toaster } from './components/ui/sonner';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState } from "react";
+import { EnvelopeLanding } from "./components/EnvelopeLanding";
+import { InvitationContent } from "./components/InvitationContent";
+import { AdminDashboard } from "./components/AdminDashboard";
+import { Toaster } from "./components/ui/sonner";
+import { motion, AnimatePresence } from "motion/react";
 
 export default function App() {
   const [isOpened, setIsOpened] = useState(false);
+  const [showAdmin, setShowAdmin] = useState(false);
+
+  const handleAdminAccess = () => {
+    setShowAdmin(true);
+  };
+
+  const handleBackToInvitation = () => {
+    setShowAdmin(false);
+  };
+
+  // Show Admin Dashboard
+  if (showAdmin) {
+    return (
+      <>
+        <AdminDashboard onBack={handleBackToInvitation} />
+        <Toaster position="top-center" richColors />
+      </>
+    );
+  }
 
   return (
     <>
@@ -17,7 +37,10 @@ export default function App() {
             exit={{ opacity: 0, scale: 0.9 }}
             transition={{ duration: 0.8 }}
           >
-            <EnvelopeLanding onOpen={() => setIsOpened(true)} />
+            <EnvelopeLanding
+              onOpen={() => setIsOpened(true)}
+              onAdminAccess={handleAdminAccess}
+            />
           </motion.div>
         ) : (
           <motion.div
