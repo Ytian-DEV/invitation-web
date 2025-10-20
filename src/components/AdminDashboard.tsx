@@ -1,5 +1,6 @@
 // AdminDashboard.tsx
 import { useState, useEffect, useRef } from "react";
+import { motion } from "motion/react";
 import { supabase } from "../lib/supabase";
 import {
   QrCode,
@@ -9,11 +10,18 @@ import {
   Camera,
   Scan,
   Download,
+  ArrowLeft,
+  Plus,
+  Mail,
+  Phone,
+  Calendar,
+  Clock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
+import { QRCodeCanvas } from "qrcode.react";
 
 interface Guest {
   id: string;
@@ -46,6 +54,9 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [newGuestEmail, setNewGuestEmail] = useState("");
   const [newGuestPhone, setNewGuestPhone] = useState("");
   const [addingGuest, setAddingGuest] = useState(false);
+  const [activeTab, setActiveTab] = useState<
+    "guests" | "attendance" | "scanner"
+  >("guests");
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -146,6 +157,7 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
       }
 
       setScanning(true);
+      setActiveTab("scanner");
     } catch (error) {
       console.error("Error accessing camera:", error);
       toast.error("Cannot access camera");
@@ -260,244 +272,402 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black flex items-center justify-center">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
+    <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black text-white p-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-gray-400">
-                Maria Chezka's 25th Birthday Celebration
-              </p>
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div className="text-center md:text-left">
+              <h1 className="text-4xl md:text-5xl mb-1 font-serif italic">
+                Admin Dashboard
+              </h1>
             </div>
-            <button
+
+            <motion.button
               onClick={onBack}
-              className="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition-colors"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="self-center md:self-end bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-4 py-2 rounded-full border-2 border-red-400 font-medium tracking-wide flex items-center justify-center gap-2"
             >
+              <ArrowLeft className="w-4 h-4" />
               Back to Invitation
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-gray-800 p-4 rounded-lg text-center">
-            <Users className="w-8 h-8 mx-auto mb-2 text-blue-400" />
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-gray-400 text-sm">Total Guests</div>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg text-center">
-            <CheckCircle className="w-8 h-8 mx-auto mb-2 text-green-400" />
-            <div className="text-2xl font-bold">{stats.responded}</div>
-            <div className="text-gray-400 text-sm">Responded</div>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg text-center">
-            <QrCode className="w-8 h-8 mx-auto mb-2 text-yellow-400" />
-            <div className="text-2xl font-bold">{stats.attending}</div>
-            <div className="text-gray-400 text-sm">Attending</div>
-          </div>
-          <div className="bg-gray-800 p-4 rounded-lg text-center">
-            <Scan className="w-8 h-8 mx-auto mb-2 text-red-400" />
-            <div className="text-2xl font-bold">{stats.checkedIn}</div>
-            <div className="text-gray-400 text-sm">Checked In</div>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8"
+        >
+          {[
+            {
+              icon: Users,
+              value: stats.total,
+              label: "Total Guests",
+              color: "text-blue-400",
+              bg: "from-blue-600 to-blue-800",
+            },
+            {
+              icon: CheckCircle,
+              value: stats.responded,
+              label: "Responded",
+              color: "text-green-400",
+              bg: "from-green-600 to-green-800",
+            },
+            {
+              icon: QrCode,
+              value: stats.attending,
+              label: "Attending",
+              color: "text-yellow-400",
+              bg: "from-yellow-600 to-yellow-800",
+            },
+            {
+              icon: Scan,
+              value: stats.checkedIn,
+              label: "Checked In",
+              color: "text-red-400",
+              bg: "from-red-600 to-red-800",
+            },
+          ].map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.1 }}
+              className={`bg-gradient-to-br ${stat.bg} p-6 rounded-2xl border-2 border-white/20 shadow-2xl text-center`}
+            >
+              <stat.icon className={`w-12 h-12 mx-auto mb-4 ${stat.color}`} />
+              <div className="text-3xl font-bold text-white mb-2">
+                {stat.value}
+              </div>
+              <div className="text-red-100 text-sm tracking-wider">
+                {stat.label}
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Navigation Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="flex space-x-4 mb-8 border-b-2 border-red-800/50"
+        >
+          {[
+            { id: "guests" as const, label: "Guests", icon: Users },
+            { id: "attendance" as const, label: "Attendance", icon: Calendar },
+            { id: "scanner" as const, label: "QR Scanner", icon: Camera },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center px-6 py-3 border-b-2 transition-all font-medium tracking-wide ${
+                activeTab === tab.id
+                  ? "border-red-500 text-white bg-red-900/30 rounded-t-lg"
+                  : "border-transparent text-red-300 hover:text-white hover:bg-red-900/10"
+              }`}
+            >
+              <tab.icon className="w-5 h-5 mr-2" />
+              {tab.label}
+            </button>
+          ))}
+        </motion.div>
 
         {/* Scanner Section */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold">QR Code Scanner</h2>
-            {!scanning ? (
-              <Button
-                onClick={startScanner}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                <Camera className="w-4 h-4 mr-2" />
-                Start Scanner
-              </Button>
-            ) : (
-              <Button
-                onClick={stopScanner}
-                variant="outline"
-                className="border-white text-white"
-              >
-                Stop Scanner
-              </Button>
-            )}
-          </div>
-
-          {scanning && (
-            <div className="bg-black rounded-lg p-4">
-              <video
-                ref={videoRef}
-                autoPlay
-                playsInline
-                className="w-full h-64 object-cover rounded-lg"
-              />
-              <p className="text-center mt-2 text-gray-400">
-                Point camera at guest's QR code
-              </p>
-            </div>
-          )}
-        </div>
-
-        {/* Add Guest Form */}
-        <div className="mb-8 bg-gray-800 p-6 rounded-lg">
-          <h2 className="text-2xl font-bold mb-4">Add Guest</h2>
-          <form
-            onSubmit={addGuest}
-            className="grid grid-cols-1 md:grid-cols-3 gap-4"
+        {activeTab === "scanner" && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-8"
           >
-            <div>
-              <Label htmlFor="guestName" className="text-white">
-                Name *
-              </Label>
-              <Input
-                id="guestName"
-                value={newGuestName}
-                onChange={(e) => setNewGuestName(e.target.value)}
-                placeholder="Full name"
-                className="bg-gray-700 border-gray-600 text-white"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="guestEmail" className="text-white">
-                Email
-              </Label>
-              <Input
-                id="guestEmail"
-                type="email"
-                value={newGuestEmail}
-                onChange={(e) => setNewGuestEmail(e.target.value)}
-                placeholder="email@example.com"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            <div>
-              <Label htmlFor="guestPhone" className="text-white">
-                Phone
-              </Label>
-              <Input
-                id="guestPhone"
-                type="tel"
-                value={newGuestPhone}
-                onChange={(e) => setNewGuestPhone(e.target.value)}
-                placeholder="Phone number"
-                className="bg-gray-700 border-gray-600 text-white"
-              />
-            </div>
-            <div className="md:col-span-3">
-              <Button
-                type="submit"
-                disabled={addingGuest}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                {addingGuest ? "Adding..." : "Add Guest"}
-              </Button>
-            </div>
-          </form>
-        </div>
+            <div className="bg-gradient-to-br from-red-900 to-red-950 p-8 rounded-2xl border-2 border-red-700 shadow-2xl">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-serif italic">QR Code Scanner</h2>
+                {!scanning ? (
+                  <motion.button
+                    onClick={startScanner}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-3 rounded-full transition-all border-2 border-red-400 font-medium tracking-wide"
+                  >
+                    <Camera className="w-5 h-5 mr-2 inline" />
+                    Start Scanner
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    onClick={stopScanner}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white px-8 py-3 rounded-full transition-all border-2 border-gray-400 font-medium tracking-wide"
+                  >
+                    Stop Scanner
+                  </motion.button>
+                )}
+              </div>
 
-        {/* Export Button */}
-        <div className="mb-4">
-          <Button
-            onClick={exportGuests}
-            variant="outline"
-            className="border-white text-white"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Export Guests List
-          </Button>
-        </div>
-
-        {/* Guests List */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-4">Guests List</h2>
-          <div className="bg-gray-800 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-700 font-semibold">
-              <div className="col-span-4">Name</div>
-              <div className="col-span-3">Contact</div>
-              <div className="col-span-2 text-center">Status</div>
-              <div className="col-span-2 text-center">Response</div>
-              <div className="col-span-1 text-center">QR</div>
-            </div>
-            <div className="max-h-96 overflow-y-auto">
-              {guests.map((guest) => (
-                <div
-                  key={guest.id}
-                  className="grid grid-cols-12 gap-4 p-4 border-b border-gray-700 items-center"
-                >
-                  <div className="col-span-4 font-medium">{guest.name}</div>
-                  <div className="col-span-3 text-sm text-gray-400">
-                    {guest.email && <div>{guest.email}</div>}
-                    {guest.phone && <div>{guest.phone}</div>}
-                  </div>
-                  <div className="col-span-2 text-center">
-                    {guest.is_attending ? (
-                      <CheckCircle className="w-5 h-5 text-green-400 mx-auto" />
-                    ) : (
-                      <XCircle className="w-5 h-5 text-red-400 mx-auto" />
-                    )}
-                  </div>
-                  <div className="col-span-2 text-center">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        guest.has_responded
-                          ? "bg-green-900 text-green-200"
-                          : "bg-gray-700 text-gray-300"
-                      }`}
-                    >
-                      {guest.has_responded ? "Responded" : "Pending"}
-                    </span>
-                  </div>
-                  <div className="col-span-1 text-center">
-                    <QrCode className="w-4 h-4 text-gray-400 mx-auto" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Attendance Records */}
-        <div>
-          <h2 className="text-2xl font-bold mb-4">Attendance Records</h2>
-          <div className="bg-gray-800 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-700 font-semibold">
-              <div className="col-span-6">Guest Name</div>
-              <div className="col-span-6">Check-in Time</div>
-            </div>
-            <div className="max-h-64 overflow-y-auto">
-              {attendance.map((record) => (
-                <div
-                  key={record.id}
-                  className="grid grid-cols-12 gap-4 p-4 border-b border-gray-700"
-                >
-                  <div className="col-span-6 font-medium">
-                    {record.guest.name}
-                  </div>
-                  <div className="col-span-6 text-sm text-gray-400">
-                    {new Date(record.scanned_at).toLocaleString()}
-                  </div>
-                </div>
-              ))}
-              {attendance.length === 0 && (
-                <div className="p-8 text-center text-gray-500">
-                  No check-ins yet
+              {scanning && (
+                <div className="bg-black/50 rounded-2xl p-6 border-2 border-red-500/30">
+                  <video
+                    ref={videoRef}
+                    autoPlay
+                    playsInline
+                    className="w-full h-96 object-cover rounded-xl border-2 border-red-500/50"
+                  />
+                  <p className="text-center mt-4 text-red-200 text-lg tracking-wide">
+                    Point camera at guest's QR code
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        )}
+
+        {/* Add Guest Form */}
+        {activeTab === "guests" && (
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-8 bg-gradient-to-br from-red-900 to-black p-8 rounded-2xl border-2 border-red-700 shadow-2xl"
+          >
+            <h2 className="text-3xl font-serif italic mb-6">Add Guest</h2>
+            <form
+              onSubmit={addGuest}
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              <div>
+                <Label
+                  htmlFor="guestName"
+                  className="text-white text-lg mb-3 block"
+                >
+                  Name *
+                </Label>
+                <Input
+                  id="guestName"
+                  value={newGuestName}
+                  onChange={(e) => setNewGuestName(e.target.value)}
+                  placeholder="Full name"
+                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                  required
+                />
+              </div>
+              <div>
+                <Label
+                  htmlFor="guestEmail"
+                  className="text-white text-lg mb-3 block"
+                >
+                  Email
+                </Label>
+                <Input
+                  id="guestEmail"
+                  type="email"
+                  value={newGuestEmail}
+                  onChange={(e) => setNewGuestEmail(e.target.value)}
+                  placeholder="email@example.com"
+                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                />
+              </div>
+              <div>
+                <Label
+                  htmlFor="guestPhone"
+                  className="text-white text-lg mb-3 block"
+                >
+                  Phone
+                </Label>
+                <Input
+                  id="guestPhone"
+                  type="tel"
+                  value={newGuestPhone}
+                  onChange={(e) => setNewGuestPhone(e.target.value)}
+                  placeholder="Phone number"
+                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                />
+              </div>
+              <div className="md:col-span-3">
+                <motion.button
+                  type="submit"
+                  disabled={addingGuest}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center justify-center mx-2 gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-xl transition-all border-2 border-red-400 font-medium tracking-wide disabled:opacity-50"
+                >
+                  <Plus className="w-5 h-5" />
+                  {addingGuest ? "Adding Guest..." : "Add Guest"}
+                </motion.button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {/* Export Button */}
+        {activeTab === "guests" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <motion.button
+              onClick={exportGuests}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white px-6 py-3 rounded-full transition-all border-2 border-gray-400 font-medium tracking-wide"
+            >
+              <Download className="w-4 h-4 mr-2 inline" />
+              Export Guests List
+            </motion.button>
+          </motion.div>
+        )}
+
+        {/* Guests List */}
+        {activeTab === "guests" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8"
+          >
+            <h2 className="text-3xl font-serif italic mb-6">Guests List</h2>
+
+            <div className="bg-gradient-to-br from-red-900 to-black rounded-2xl border-2 border-red-700 shadow-2xl overflow-hidden">
+              <div className="max-h-96 overflow-y-auto divide-y divide-red-800/50">
+                {guests.map((guest, index) => (
+                  <motion.div
+                    key={guest.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="flex flex-col md:flex-row items-center md:items-start p-4 hover:bg-red-900/20 transition-colors text-red-100"
+                  >
+                    {/* ✅ QR CODE LEFT */}
+                    <div className="flex-shrink-0 bg-black/40 border border-red-700 p-4 rounded-xl flex items-center justify-center w-[120px] h-[120px]">
+                      <QRCodeCanvas
+                        value={`Name: ${guest.name}\nEmail: ${
+                          guest.email
+                        }\nContact: ${guest.phone || "N/A"}`}
+                        size={100}
+                        bgColor="#ff4d4d"
+                        fgColor="#ffffff"
+                        level="M"
+                      />
+                    </div>
+                    {/* ✅ TEXT RIGHT */}
+                    <div className="px-6 flex-col justify-center w-full md:pl-4">
+                      <div className="text-base sm:text-lg leading-relaxed space-y-2">
+                        <p>
+                          <span className="font-semibold text-red-300">
+                            Name:
+                          </span>{" "}
+                          <span className="text-red-100">{guest.name}</span>
+                        </p>
+
+                        <p className="flex items-center gap-2 text-red-100">
+                          <span className="font-semibold text-red-300">
+                            Contact:
+                          </span>
+                          <span className="flex items-center gap-4 text-red-100">
+                            <span className="flex items-center gap-2">
+                              <Mail className="w-4 h-4 text-red-400" />
+                              {guest.email}
+                            </span>
+
+                            {guest.phone && (
+                              <span className="flex items-center gap-2">
+                                <Phone className="w-4 h-4 text-red-400" />
+                                {guest.phone}
+                              </span>
+                            )}
+                          </span>
+                        </p>
+
+                        <p>
+                          <span className="font-semibold text-red-300">
+                            Status:
+                          </span>{" "}
+                          {guest.is_attending ? (
+                            <span className="flex items-center gap-2 text-green-400 inline-flex">
+                              <CheckCircle className="w-5 h-5" /> Attending
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2 text-red-400 inline-flex">
+                              <XCircle className="w-5 h-5" /> Not Attending
+                            </span>
+                          )}
+                        </p>
+
+                        <p>
+                          <span className="font-semibold text-red-300">
+                            Message:
+                          </span>{" "}
+                          <span className="italic text-red-100">
+                            {guest.message || "No message provided"}
+                          </span>
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Attendance Records */}
+        {activeTab === "attendance" && (
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+          >
+            <h2 className="text-3xl font-serif italic mb-6">
+              Attendance Records
+            </h2>
+            <div className="bg-gradient-to-br from-red-900 to-black rounded-2xl border-2 border-red-700 shadow-2xl overflow-hidden">
+              <div className="grid grid-cols-12 gap-4 p-6 border-b-2 border-red-700 font-semibold text-red-200 tracking-wide">
+                <div className="col-span-6">Guest Name</div>
+                <div className="col-span-6">Check-in Time</div>
+              </div>
+              <div className="max-h-96 overflow-y-auto">
+                {attendance.map((record, index) => (
+                  <motion.div
+                    key={record.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="grid grid-cols-12 gap-4 p-6 border-b border-red-800/50 hover:bg-red-900/20 transition-colors"
+                  >
+                    <div className="col-span-6 font-medium text-white text-lg">
+                      {record.guest.name}
+                    </div>
+                    <div className="col-span-6 text-red-200">
+                      <div className="flex items-center">
+                        <Clock className="w-4 h-4 mr-2" />
+                        {new Date(record.scanned_at).toLocaleString()}
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+                {attendance.length === 0 && (
+                  <div className="p-12 text-center text-red-300 text-lg">
+                    <Calendar className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                    No check-ins yet
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

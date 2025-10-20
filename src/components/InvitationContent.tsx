@@ -49,7 +49,19 @@ const photosList = [
 ];
 
 // Simple Image Popup Component
-function ImagePopup({ src, fallback, alt, isOpen, onClose }) {
+function ImagePopup({
+  src,
+  fallback,
+  alt,
+  isOpen,
+  onClose,
+}: {
+  src: string;
+  fallback: string;
+  alt: string;
+  isOpen: boolean;
+  onClose: () => void;
+}) {
   if (!isOpen) return null;
 
   return (
@@ -88,7 +100,9 @@ function ImagePopup({ src, fallback, alt, isOpen, onClose }) {
 }
 
 // Individual Photo Component
-function PhotoItem({ photo, index }) {
+function PhotoItem({ photo, index }:
+  { photo: { src: string; fallback: string }; index: number }
+) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleShowDialog = () => {
@@ -416,7 +430,7 @@ export function InvitationContent() {
           >
             <h2 className="text-4xl md:text-5xl mb-4 text-white font-serif italic">
               Event Details
-            </h2> 
+            </h2>
             <div className="w-24 h-1 bg-red-600 mx-auto mb-2"></div>
           </motion.div>
 
@@ -437,9 +451,7 @@ export function InvitationContent() {
                 <p className="text-lg md:text-xl text-red-700 mb-1">
                   April 13, 2026
                 </p>
-                <p className="text-base text-gray-500 italic">
-                  Saturday
-                </p>
+                <p className="text-base text-gray-500 italic">Saturday</p>
               </div>
             </motion.div>
 
