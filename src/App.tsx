@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { EnvelopeLanding } from "./components/EnvelopeLanding";
 import { InvitationContent } from "./components/InvitationContent";
 import { AdminDashboard } from "./components/AdminDashboard";
