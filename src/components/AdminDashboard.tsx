@@ -1,5 +1,5 @@
 // AdminDashboard.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { supabase } from "../lib/supabase";
 import {
@@ -22,6 +22,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { QRCodeCanvas } from "qrcode.react";
+import { QRScanner } from "./QRScanner";
 
 interface Guest {
   id: string;
@@ -49,7 +50,6 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [scanning, setScanning] = useState(false);
   const [newGuestName, setNewGuestName] = useState("");
   const [newGuestEmail, setNewGuestEmail] = useState("");
   const [newGuestPhone, setNewGuestPhone] = useState("");
@@ -57,9 +57,6 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState<
     "guests" | "attendance" | "scanner"
   >("guests");
-
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
     loadGuests();
@@ -145,87 +142,9 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
     }
   };
 
-  const startScanner = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "environment" },
-      });
-
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        streamRef.current = stream;
-      }
-
-      setScanning(true);
-      setActiveTab("scanner");
-    } catch (error) {
-      console.error("Error accessing camera:", error);
-      toast.error("Cannot access camera");
-    }
-  };
-
-  const stopScanner = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((track) => track.stop());
-      streamRef.current = null;
-    }
-    setScanning(false);
-  };
-
-  const handleScan = async (qrData: string) => {
-    try {
-      // Find guest by QR code
-      const { data: guest, error } = await supabase
-        .from("guests")
-        .select("*")
-        .eq("qr_code", qrData)
-        .single();
-
-      if (error) {
-        if (error.code === "PGRST116") {
-          toast.error("Guest not found in database");
-        } else {
-          throw error;
-        }
-        return;
-      }
-
-      if (!guest.is_attending) {
-        toast.error("This guest is not attending the event");
-        return;
-      }
-
-      // Check if already scanned in
-      const { data: existingRecord } = await supabase
-        .from("attendance")
-        .select("*")
-        .eq("guest_id", guest.id)
-        .single();
-
-      if (existingRecord) {
-        toast.error(`${guest.name} has already been checked in`);
-        return;
-      }
-
-      // Record attendance
-      const { error: attendanceError } = await supabase
-        .from("attendance")
-        .insert([
-          {
-            guest_id: guest.id,
-            scanned_by: "admin",
-          },
-        ]);
-
-      if (attendanceError) throw attendanceError;
-
-      toast.success(`Welcome, ${guest.name}!`);
-      loadAttendance();
-      stopScanner();
-    } catch (error) {
-      console.error("Error processing QR code:", error);
-      toast.error("Error processing QR code");
-    }
+  const handleScanSuccess = () => {
+    // Reload attendance when a scan is successful
+    loadAttendance();
   };
 
   const exportGuests = () => {
@@ -256,7 +175,7 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `maria-chezka-guests-${
+    link.download = `yzkaella-yang-guests-${
       new Date().toISOString().split("T")[0]
     }.csv`;
     link.click();
@@ -388,53 +307,12 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
           ))}
         </motion.div>
 
-        {/* Scanner Section */}
+        {/* Scanner Section - Now using the separate component */}
         {activeTab === "scanner" && (
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-8"
-          >
-            <div className="bg-gradient-to-br from-red-900 to-red-950 p-8 rounded-2xl border-2 border-red-700 shadow-2xl">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-serif italic">QR Code Scanner</h2>
-                {!scanning ? (
-                  <motion.button
-                    onClick={startScanner}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-3 rounded-full transition-all border-2 border-red-400 font-medium tracking-wide"
-                  >
-                    <Camera className="w-5 h-5 mr-2 inline" />
-                    Start Scanner
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    onClick={stopScanner}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white px-8 py-3 rounded-full transition-all border-2 border-gray-400 font-medium tracking-wide"
-                  >
-                    Stop Scanner
-                  </motion.button>
-                )}
-              </div>
-
-              {scanning && (
-                <div className="bg-black/50 rounded-2xl p-6 border-2 border-red-500/30">
-                  <video
-                    ref={videoRef}
-                    autoPlay
-                    playsInline
-                    className="w-full h-96 object-cover rounded-xl border-2 border-red-500/50"
-                  />
-                  <p className="text-center mt-4 text-red-200 text-lg tracking-wide">
-                    Point camera at guest's QR code
-                  </p>
-                </div>
-              )}
-            </div>
-          </motion.div>
+          <QRScanner 
+            onScanSuccess={handleScanSuccess}
+            onClose={() => setActiveTab("attendance")}
+          />
         )}
 
         {/* Add Guest Form */}
@@ -551,7 +429,7 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
                     transition={{ delay: index * 0.05 }}
                     className="flex flex-col md:flex-row items-center md:items-start p-4 hover:bg-red-900/20 transition-colors text-red-100"
                   >
-                    {/* ✅ QR CODE LEFT */}
+                    {/* QR CODE LEFT */}
                     <div className="flex-shrink-0 bg-black/40 border border-red-700 p-4 rounded-xl flex items-center justify-center w-[120px] h-[120px]">
                       <QRCodeCanvas
                         value={`Name: ${guest.name}\nEmail: ${
@@ -563,7 +441,7 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
                         level="M"
                       />
                     </div>
-                    {/* ✅ TEXT RIGHT */}
+                    {/* TEXT RIGHT */}
                     <div className="px-6 flex-col justify-center w-full md:pl-4">
                       <div className="text-base sm:text-lg leading-relaxed space-y-2">
                         <p>
