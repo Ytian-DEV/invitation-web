@@ -1,11 +1,32 @@
 import { useState } from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, useNavigate } from "react-router-dom";
 import { EnvelopeLanding } from "./components/EnvelopeLanding";
 import { InvitationContent } from "./components/InvitationContent";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { Toaster } from "./components/ui/sonner";
 import { motion, AnimatePresence } from "motion/react";
 import AdministratorPage from "./components/pages/administrator";
+
+// Create a wrapper component to handle the navigation
+function LandingWrapper() {
+  const navigate = useNavigate();
+  
+  const handleOpen = () => {
+    console.log("Navigating to invitation...");
+    navigate("/invitation");
+  };
+
+  const handleAdminAccess = () => {
+    navigate("/administrator");
+  };
+
+  return (
+    <EnvelopeLanding 
+      onOpen={handleOpen} 
+      onAdminAccess={handleAdminAccess} 
+    />
+  );
+}
 
 export default function App() {
   const [isOpened, setIsOpened] = useState(false);
@@ -24,12 +45,7 @@ export default function App() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.8 }}
               >
-                <EnvelopeLanding
-                  onOpen={() => setIsOpened(true)}
-                  onAdminAccess={() =>
-                    (window.location.href = "/administrator")
-                  } // redirect to /administrator
-                />
+                <LandingWrapper />
               </motion.div>
             }
           />
