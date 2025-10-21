@@ -3,9 +3,14 @@ import { Mail } from "lucide-react";
 
 interface EnvelopeLandingProps {
   onOpen: () => void;
+  onAdminAccess: () => void;
 }
 
 export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
+  const handleClick = () => {
+    onOpen();
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-red-950 to-black flex items-center justify-center p-4 overflow-hidden relative">
       {/* Decorative elements */}
@@ -36,17 +41,18 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
           </p>
         </motion.div>
 
+        {/* Envelope Container - Single click handler */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="relative mb-12 cursor-pointer"
-          onClick={onOpen}
+          className="relative mb-12"
+          onClick={handleClick}
         >
-          {/* Envelope */}
-          <div className="relative w-64 h-40 md:w-80 md:h-48 mx-auto cursor-pointer envelope-container">
+          <div className="relative w-64 h-40 md:w-80 md:h-48 mx-auto cursor-pointer">
+            {/* Envelope Base */}
             <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 rounded-lg shadow-2xl cursor-pointer"
+              className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 rounded-lg shadow-2xl"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -54,8 +60,9 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
               <div className="absolute inset-0 border-4 border-red-900 rounded-lg"></div>
             </motion.div>
 
+            {/* Envelope Flap */}
             <motion.div
-              className="absolute top-0 left-0 right-0 h-24 md:h-28 origin-top cursor-pointer"
+              className="absolute top-0 left-0 right-0 h-24 md:h-28 origin-top pointer-events-none"
               style={{
                 background: "linear-gradient(135deg, #dc2626 0%, #991b1b 100%)",
                 clipPath: "polygon(0 0, 50% 100%, 100% 0)",
@@ -69,29 +76,32 @@ export function EnvelopeLanding({ onOpen }: EnvelopeLandingProps) {
               ></div>
             </motion.div>
 
+            {/* Mail Icon */}
             <motion.div
-              className="absolute top-16 md:top-20 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg z-10 cursor-pointer"
+              className="absolute top-16 md:top-20 left-1/2 transform -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg z-10 pointer-events-none"
               whileHover={{ rotate: 360, scale: 1.1 }}
               transition={{ duration: 0.6 }}
             >
               <Mail className="w-8 h-8 text-red-600" />
             </motion.div>
 
-            <div className="absolute bottom-8 left-8 right-8 space-y-2">
+            {/* Lines */}
+            <div className="absolute bottom-8 left-8 right-8 space-y-2 pointer-events-none">
               <div className="h-0.5 bg-red-300 opacity-40 w-3/4"></div>
               <div className="h-0.5 bg-red-300 opacity-40 w-1/2"></div>
             </div>
           </div>
         </motion.div>
 
+        {/* Button */}
         <motion.button
-          onClick={onOpen}
+          onClick={handleClick}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6, duration: 0.8 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
-          className="bg-white text-black px-12 py-4 rounded-full tracking-widest hover:bg-red-50 transition-colors shadow-2xl border-2 border-red-200 font-semibold"
+          className="bg-white text-black px-12 py-4 rounded-full tracking-widest hover:bg-red-50 transition-colors shadow-2xl border-2 border-red-200 font-semibold cursor-pointer"
         >
           OPEN INVITATION
         </motion.button>
