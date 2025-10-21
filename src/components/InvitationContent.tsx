@@ -255,12 +255,9 @@ export function InvitationContent() {
             </div>
 
             <h1 className="text-6xl md:text-8xl lg:text-9xl text-white mb-6 font-serif italic">
-              Maria Chezka
+              Yzkaella Yang
             </h1>
 
-            <div className="text-3xl md:text-5xl text-white mb-4 tracking-wider font-light">
-              Meliz Delima
-            </div>
 
             <div className="relative inline-block my-8">
               <div
@@ -308,7 +305,7 @@ export function InvitationContent() {
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1586024795129-38d4e68bdd0c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMGJsYWNrJTIwZHJlc3MlMjBwb3J0cmFpdHxlbnwxfHx8fDE3NjAyNDk2NTd8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 fallbackSrc="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&auto=format&fit=crop&w=1080&q=80"
-                alt="Maria Chezka"
+                alt="Yzkaela Yang"
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/60"></div>

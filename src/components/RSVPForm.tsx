@@ -142,7 +142,7 @@ export function RSVPForm() {
 
       // Prepare and send email
       const templateParams = {
-        to_name: "Maria Chezka",
+        to_name: "Yzkaella Yang",
         from_name: name.trim(),
         guest_name: name.trim(),
         attending: attending ? "✅ Yes, I will be there!" : "❌ Cannot make it",
@@ -355,7 +355,7 @@ export function RSVPForm() {
 
         <div>
           <Label htmlFor="message" className="text-white mb-2 block text-lg">
-            Leave a message for Maria Chezka (Optional)
+            Leave a message for Yzkaella Yang (Optional)
           </Label>
           <Textarea
             id="message"
