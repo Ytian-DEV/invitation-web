@@ -107,10 +107,12 @@ function PhotoItem({ photo, index }:
 
   const handleShowDialog = () => {
     setIsOpen(!isOpen);
+    document.body.style.overflow = "hidden";
   };
 
   const handleClose = () => {
     setIsOpen(false);
+    document.body.style.overflow = "auto";
   };
 
   return (
