@@ -31,7 +31,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
     console.log("🔍 Stream ref:", streamRef.current);
   }, [scanning, cameraActive]);
 
-  // Cleanup function - FIXED to be more careful
+  // Cleanup function
   const stopScanner = useCallback(() => {
     console.log("🛑 Stopping scanner...");
 
@@ -54,7 +54,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
       streamRef.current = null;
     }
 
-    // Clear video - but be careful with timing
+    // Clear video
     if (videoRef.current) {
       videoRef.current.srcObject = null;
     }
@@ -75,6 +75,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
 
       try {
         setScanResult("Processing...");
+        console.log("🔍 Processing QR code:", qrData);
 
         // Find guest by QR code
         const { data: guest, error } = await supabase
@@ -85,6 +86,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
 
         if (error) {
           if (error.code === "PGRST116") {
+            console.log("❌ Guest not found for QR:", qrData);
             toast.error("Guest not found in database");
           } else {
             throw error;
@@ -96,6 +98,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
         }
 
         if (!guest.is_attending) {
+          console.log("❌ Guest not attending:", guest.name);
           toast.error("This guest is not attending the event");
           setScanResult(null);
           setIsProcessing(false);
@@ -111,6 +114,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
           .single();
 
         if (existingRecord) {
+          console.log("❌ Guest already checked in:", guest.name);
           toast.error(`${guest.name} has already been checked in`);
           setScanResult(null);
           setIsProcessing(false);
@@ -130,6 +134,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
 
         if (attendanceError) throw attendanceError;
 
+        console.log("✅ Successfully checked in:", guest.name);
         toast.success(`Welcome, ${guest.name}!`);
         setScanResult(`Success: ${guest.name} checked in!`);
 
@@ -204,7 +209,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
     }
   }, [handleScanResult]);
 
-  // Start camera function - FIXED VERSION
+  // Start camera function
   const startScanner = async () => {
     try {
       console.log("🚀 Starting scanner...");
@@ -377,7 +382,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
         {scanning && (
           <div className="bg-black/50 rounded-2xl p-6 border-2 border-red-500/30">
             <div className="relative">
-              {/* Video Element - ADD UNIQUE ID */}
+              {/* Video Element */}
               <video
                 ref={videoRef}
                 id="main-qr-scanner-video"
@@ -416,7 +421,44 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
                   </div>
                 </div>
               )}
+
+              {/* SCANNER OVERLAY - THIS WAS MISSING! */}
+              {cameraActive && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <div className="border-2 border-red-500 rounded-lg w-64 h-64 relative">
+                    {/* Corner borders */}
+                    <div className="absolute -top-1 -left-1 w-6 h-6 border-t-4 border-l-4 border-red-500"></div>
+                    <div className="absolute -top-1 -right-1 w-6 h-6 border-t-4 border-r-4 border-red-500"></div>
+                    <div className="absolute -bottom-1 -left-1 w-6 h-6 border-b-4 border-l-4 border-red-500"></div>
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 border-b-4 border-r-4 border-red-500"></div>
+
+                    {/* Animated scanning line */}
+                    <motion.div
+                      className="absolute left-0 right-0 h-1 bg-red-500 shadow-lg shadow-red-500/50"
+                      animate={{ top: ["0%", "100%", "0%"] }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* CANVAS ELEMENT FOR QR PROCESSING - THIS WAS MISSING! */}
+            <canvas
+              ref={canvasRef}
+              className="hidden"
+              style={{
+                display: "none !important",
+                visibility: "hidden !important",
+                position: "absolute",
+                top: "-9999px",
+                left: "-9999px",
+              }}
+            />
 
             {/* Scan result display */}
             {scanResult && (
@@ -453,7 +495,7 @@ export default function QRScanner({ onScanSuccess, onClose }: QRScannerProps) {
         )}
       </div>
 
-      {/* EMERGENCY FIX: Hide any other video elements on the page */}
+      {/* Hide any other video elements on the page */}
       <style>
         {`
         video:not(#main-qr-scanner-video) {
