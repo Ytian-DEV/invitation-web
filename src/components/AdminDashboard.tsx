@@ -22,7 +22,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { QRCodeCanvas } from "qrcode.react";
-import { QRScanner } from "./QRScanner";
+import QRScanner from "./QRScanner";
 
 interface Guest {
   id: string;
@@ -307,7 +307,7 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
           ))}
         </motion.div>
 
-        {/* Scanner Section - Now using the separate component */}
+        {/* Scanner Section - Only show QR Scanner */}
         {activeTab === "scanner" && (
           <QRScanner 
             onScanSuccess={handleScanSuccess}
@@ -315,194 +315,193 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
           />
         )}
 
-        {/* Add Guest Form */}
+        {/* Guests Section - Only show when guests tab is active */}
         {activeTab === "guests" && (
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="mb-8 bg-gradient-to-br from-red-900 to-black p-8 rounded-2xl border-2 border-red-700 shadow-2xl"
-          >
-            <h2 className="text-3xl font-serif italic mb-6">Add Guest</h2>
-            <form
-              onSubmit={addGuest}
-              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+          <>
+            {/* Add Guest Form */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="mb-8 bg-gradient-to-br from-red-900 to-black p-8 rounded-2xl border-2 border-red-700 shadow-2xl"
             >
-              <div>
-                <Label
-                  htmlFor="guestName"
-                  className="text-white text-lg mb-3 block"
-                >
-                  Name *
-                </Label>
-                <Input
-                  id="guestName"
-                  value={newGuestName}
-                  onChange={(e) => setNewGuestName(e.target.value)}
-                  placeholder="Full name"
-                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
-                  required
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="guestEmail"
-                  className="text-white text-lg mb-3 block"
-                >
-                  Email
-                </Label>
-                <Input
-                  id="guestEmail"
-                  type="email"
-                  value={newGuestEmail}
-                  onChange={(e) => setNewGuestEmail(e.target.value)}
-                  placeholder="email@example.com"
-                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
-                />
-              </div>
-              <div>
-                <Label
-                  htmlFor="guestPhone"
-                  className="text-white text-lg mb-3 block"
-                >
-                  Phone
-                </Label>
-                <Input
-                  id="guestPhone"
-                  type="tel"
-                  value={newGuestPhone}
-                  onChange={(e) => setNewGuestPhone(e.target.value)}
-                  placeholder="Phone number"
-                  className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
-                />
-              </div>
-              <div className="md:col-span-3">
-                <motion.button
-                  type="submit"
-                  disabled={addingGuest}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center mx-2 gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-xl transition-all border-2 border-red-400 font-medium tracking-wide disabled:opacity-50"
-                >
-                  <Plus className="w-5 h-5" />
-                  {addingGuest ? "Adding Guest..." : "Add Guest"}
-                </motion.button>
-              </div>
-            </form>
-          </motion.div>
-        )}
-
-        {/* Export Button */}
-        {activeTab === "guests" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
-          >
-            <motion.button
-              onClick={exportGuests}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white px-6 py-3 rounded-full transition-all border-2 border-gray-400 font-medium tracking-wide"
-            >
-              <Download className="w-4 h-4 mr-2 inline" />
-              Export Guests List
-            </motion.button>
-          </motion.div>
-        )}
-
-        {/* Guests List */}
-        {activeTab === "guests" && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
-            <h2 className="text-3xl font-serif italic mb-6">Guests List</h2>
-
-            <div className="bg-gradient-to-br from-red-900 to-black rounded-2xl border-2 border-red-700 shadow-2xl overflow-hidden">
-              <div className="max-h-96 overflow-y-auto divide-y divide-red-800/50">
-                {guests.map((guest, index) => (
-                  <motion.div
-                    key={guest.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    className="flex flex-col md:flex-row items-center md:items-start p-4 hover:bg-red-900/20 transition-colors text-red-100"
+              <h2 className="text-3xl font-serif italic mb-6">Add Guest</h2>
+              <form
+                onSubmit={addGuest}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              >
+                <div>
+                  <Label
+                    htmlFor="guestName"
+                    className="text-white text-lg mb-3 block"
                   >
-                    {/* QR CODE LEFT */}
-                    <div className="flex-shrink-0 bg-black/40 border border-red-700 p-4 rounded-xl flex items-center justify-center w-[120px] h-[120px]">
-                      <QRCodeCanvas
-                        value={`Name: ${guest.name}\nEmail: ${
-                          guest.email
-                        }\nContact: ${guest.phone || "N/A"}`}
-                        size={100}
-                        bgColor="#ff4d4d"
-                        fgColor="#ffffff"
-                        level="M"
-                      />
-                    </div>
-                    {/* TEXT RIGHT */}
-                    <div className="px-6 flex-col justify-center w-full md:pl-4">
-                      <div className="text-base sm:text-lg leading-relaxed space-y-2">
-                        <p>
-                          <span className="font-semibold text-red-300">
-                            Name:
-                          </span>{" "}
-                          <span className="text-red-100">{guest.name}</span>
-                        </p>
+                    Name *
+                  </Label>
+                  <Input
+                    id="guestName"
+                    value={newGuestName}
+                    onChange={(e) => setNewGuestName(e.target.value)}
+                    placeholder="Full name"
+                    className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="guestEmail"
+                    className="text-white text-lg mb-3 block"
+                  >
+                    Email
+                  </Label>
+                  <Input
+                    id="guestEmail"
+                    type="email"
+                    value={newGuestEmail}
+                    onChange={(e) => setNewGuestEmail(e.target.value)}
+                    placeholder="email@example.com"
+                    className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="guestPhone"
+                    className="text-white text-lg mb-3 block"
+                  >
+                    Phone
+                  </Label>
+                  <Input
+                    id="guestPhone"
+                    type="tel"
+                    value={newGuestPhone}
+                    onChange={(e) => setNewGuestPhone(e.target.value)}
+                    placeholder="Phone number"
+                    className="bg-black/50 border-red-500/30 text-white placeholder:text-red-300/50 rounded-xl p-4 border-2 focus:border-red-500"
+                  />
+                </div>
+                <div className="md:col-span-3">
+                  <motion.button
+                    type="submit"
+                    disabled={addingGuest}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex items-center justify-center mx-2 gap-2 bg-gradient-to-r from-red-600 to-red-800 hover:from-red-700 hover:to-red-900 text-white px-8 py-4 rounded-xl transition-all border-2 border-red-400 font-medium tracking-wide disabled:opacity-50"
+                  >
+                    <Plus className="w-5 h-5" />
+                    {addingGuest ? "Adding Guest..." : "Add Guest"}
+                  </motion.button>
+                </div>
+              </form>
+            </motion.div>
 
-                        <p className="flex items-center gap-2 text-red-100">
-                          <span className="font-semibold text-red-300">
-                            Contact:
-                          </span>
-                          <span className="flex items-center gap-4 text-red-100">
-                            <span className="flex items-center gap-2">
-                              <Mail className="w-4 h-4 text-red-400" />
-                              {guest.email}
+            {/* Export Button */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <motion.button
+                onClick={exportGuests}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="bg-gradient-to-r from-gray-600 to-gray-800 hover:from-gray-700 hover:to-gray-900 text-white px-6 py-3 rounded-full transition-all border-2 border-gray-400 font-medium tracking-wide"
+              >
+                <Download className="w-4 h-4 mr-2 inline" />
+                Export Guests List
+              </motion.button>
+            </motion.div>
+
+            {/* Guests List */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl font-serif italic mb-6">Guests List</h2>
+
+              <div className="bg-gradient-to-br from-red-900 to-black rounded-2xl border-2 border-red-700 shadow-2xl overflow-hidden">
+                <div className="max-h-96 overflow-y-auto divide-y divide-red-800/50">
+                  {guests.map((guest, index) => (
+                    <motion.div
+                      key={guest.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="flex flex-col md:flex-row items-center md:items-start p-4 hover:bg-red-900/20 transition-colors text-red-100"
+                    >
+                      {/* QR CODE LEFT */}
+                      <div className="flex-shrink-0 bg-black/40 border border-red-700 p-4 rounded-xl flex items-center justify-center w-[120px] h-[120px]">
+                        <QRCodeCanvas
+                          value={`Name: ${guest.name}\nEmail: ${
+                            guest.email
+                          }\nContact: ${guest.phone || "N/A"}`}
+                          size={100}
+                          bgColor="#ff4d4d"
+                          fgColor="#ffffff"
+                          level="M"
+                        />
+                      </div>
+                      {/* TEXT RIGHT */}
+                      <div className="px-6 flex-col justify-center w-full md:pl-4">
+                        <div className="text-base sm:text-lg leading-relaxed space-y-2">
+                          <p>
+                            <span className="font-semibold text-red-300">
+                              Name:
+                            </span>{" "}
+                            <span className="text-red-100">{guest.name}</span>
+                          </p>
+
+                          <p className="flex items-center gap-2 text-red-100">
+                            <span className="font-semibold text-red-300">
+                              Contact:
                             </span>
-
-                            {guest.phone && (
+                            <span className="flex items-center gap-4 text-red-100">
                               <span className="flex items-center gap-2">
-                                <Phone className="w-4 h-4 text-red-400" />
-                                {guest.phone}
+                                <Mail className="w-4 h-4 text-red-400" />
+                                {guest.email}
+                              </span>
+
+                              {guest.phone && (
+                                <span className="flex items-center gap-2">
+                                  <Phone className="w-4 h-4 text-red-400" />
+                                  {guest.phone}
+                                </span>
+                              )}
+                            </span>
+                          </p>
+
+                          <p>
+                            <span className="font-semibold text-red-300">
+                              Status:
+                            </span>{" "}
+                            {guest.is_attending ? (
+                              <span className="flex items-center gap-2 text-green-400 inline-flex">
+                                <CheckCircle className="w-5 h-5" /> Attending
+                              </span>
+                            ) : (
+                              <span className="flex items-center gap-2 text-red-400 inline-flex">
+                                <XCircle className="w-5 h-5" /> Not Attending
                               </span>
                             )}
-                          </span>
-                        </p>
+                          </p>
 
-                        <p>
-                          <span className="font-semibold text-red-300">
-                            Status:
-                          </span>{" "}
-                          {guest.is_attending ? (
-                            <span className="flex items-center gap-2 text-green-400 inline-flex">
-                              <CheckCircle className="w-5 h-5" /> Attending
+                          <p>
+                            <span className="font-semibold text-red-300">
+                              Message:
+                            </span>{" "}
+                            <span className="italic text-red-100">
+                              {guest.message || "No message provided"}
                             </span>
-                          ) : (
-                            <span className="flex items-center gap-2 text-red-400 inline-flex">
-                              <XCircle className="w-5 h-5" /> Not Attending
-                            </span>
-                          )}
-                        </p>
-
-                        <p>
-                          <span className="font-semibold text-red-300">
-                            Message:
-                          </span>{" "}
-                          <span className="italic text-red-100">
-                            {guest.message || "No message provided"}
-                          </span>
-                        </p>
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
+                </div>
               </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </>
         )}
 
-        {/* Attendance Records */}
+        {/* Attendance Section - Only show when attendance tab is active */}
         {activeTab === "attendance" && (
           <motion.div
             initial={{ opacity: 0, x: 20 }}
